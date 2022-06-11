@@ -1,14 +1,13 @@
-// lib/my-eks-blueprints-stack.ts
-import * as cdk from "aws-cdk-lib";
+import { StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
-import * as blueprints from "@aws-quickstart/eks-blueprints";
+import { EksBlueprint } from "@aws-quickstart/eks-blueprints";
 
 export class ClusterConstruct extends Construct {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id);
 
-    const account = props?.env?.account!;
-    const region = props?.env?.region!;
+    const account = props?.env?.account;
+    const region = props?.env?.region;
 
     if (!account) {
       throw new Error("undefined aws account");
@@ -18,7 +17,7 @@ export class ClusterConstruct extends Construct {
       throw new Error("undefined aws region");
     }
 
-    const blueprint = blueprints.EksBlueprint.builder()
+    const blueprint = EksBlueprint.builder()
       .account(account)
       .region(region)
       .addOns()
