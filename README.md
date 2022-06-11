@@ -13,4 +13,12 @@ CDK_DEFAULT_REGION=us-west-2
 cdk bootstrap --trust=$CDK_DEFAULT_ACCOUNT \
   --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
   aws://$CDK_DEFAULT_ACCOUNT/$CDK_DEFAULT_REGION aws://$CDK_DEFAULT_ACCOUNT/us-east-2 aws://$CDK_DEFAULT_ACCOUNT/us-east-1
+
+capstone-pipeline-stack  
+```
+
+To get the kube-config
+
+```
+ export KUBE_CONFIG=$(aws cloudformation describe-stacks --stack-name capstone-pipeline-stack | jq -r '.Stacks[0].Outputs[] | select(.OutputKey|match("ConfigCommand"))| .OutputValue')
 ```
