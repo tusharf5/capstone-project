@@ -3,6 +3,7 @@ import { Construct } from "constructs";
 import {
   EksBlueprint,
   CodePipelineStack,
+  type ClusterAddOn,
 } from "@aws-quickstart/eks-blueprints";
 import { ArnPrincipal } from "aws-cdk-lib/aws-iam";
 
@@ -13,7 +14,13 @@ import {
   githubConfig,
   teams,
 } from "../config";
+
 import { TeamApplication, TeamPlatform } from "./teams/main";
+
+import { vpcCniAddOn } from "./addons/vpc-cni/main";
+import { karpenterAddOn } from "./addons/karpenter/main";
+
+const clusterAddons: ClusterAddOn[] = [vpcCniAddOn, karpenterAddOn];
 
 export class PipelineConstruct extends Construct {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -41,7 +48,7 @@ export class PipelineConstruct extends Construct {
     const blueprint = EksBlueprint.builder()
       .account(account)
       .region(region)
-      .addOns()
+      .addOns(...clusterAddons)
       .teams(
         new TeamPlatform(teams.platformDev.name, platformUsers),
         new TeamApplication(teams.appDev.name, appUsers)

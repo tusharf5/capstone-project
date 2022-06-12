@@ -32,3 +32,20 @@ To get the kube-config
 ```shell
  export KUBE_CONFIG=$(aws cloudformation describe-stacks --stack-name capstone-pipeline-stack | jq -r '.Stacks[0].Outputs[] | select(.OutputKey|match("ConfigCommand"))| .OutputValue')
 ```
+
+Login to the console to reset/manage the created user's passwords. They will need it to access the eks dashboard.
+
+To list all the available roles.
+
+```shell
+kubectl get roles --all-namespaces
+```
+
+To get the role arn of a team. Use this command. Use the name of the team and remove all the special characters.
+So `my-team_1` becomes `myteam1`.
+
+```shell
+aws cloudformation describe-stacks --stack-name dev-dev-blueprint | jq -r '.Stacks[0].Outputs[] | select(.OutputKey|match("capstoneappdevsteamrole"))| .OutputValue'
+```
+
+Note the account and role name.
