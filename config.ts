@@ -2,6 +2,10 @@ if (!process.env.CDK_DEFAULT_REGION) {
   throw new Error("`CDK_DEFAULT_REGION` environment variable is undefined.");
 }
 
+if (!process.env.CDK_DEFAULT_ACCOUNT) {
+  throw new Error("`CDK_DEFAULT_ACCOUNT` environment variable is undefined.");
+}
+
 export const projectName = "capstone";
 
 export const devConfig = {
@@ -24,4 +28,19 @@ export const githubConfig = {
   credentialsSecretName: "capstone-github-token",
   targetRevision: "main",
   owner: "tusharf5",
+};
+
+export const teams = {
+  appDev: {
+    name: "capstone-app-devs",
+    users: [
+      { name: "eks-app-dev-1", account: process.env.CDK_DEFAULT_ACCOUNT },
+    ],
+  },
+  platformDev: {
+    name: "capstone-platform-devs",
+    users: [
+      { name: "eks-platform-dev-1", account: process.env.CDK_DEFAULT_ACCOUNT },
+    ],
+  },
 };

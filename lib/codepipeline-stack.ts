@@ -4,8 +4,16 @@ import {
   EksBlueprint,
   CodePipelineStack,
 } from "@aws-quickstart/eks-blueprints";
+import { ArnPrincipal } from "aws-cdk-lib/aws-iam";
 
-import { devConfig, testConfig, prodConfig, githubConfig } from "../config";
+import {
+  devConfig,
+  testConfig,
+  prodConfig,
+  githubConfig,
+  teams,
+} from "../config";
+import { TeamApplication, TeamPlatform } from "./teams/main";
 
 export class PipelineConstruct extends Construct {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -22,11 +30,22 @@ export class PipelineConstruct extends Construct {
       throw new Error("undefined aws region");
     }
 
+    const platformUsers = teams.platformDev.users.map((dev) => {
+      return new ArnPrincipal(`arn:aws:iam::${dev.account}:user/${dev.name}`);
+    });
+
+    const appUsers = teams.appDev.users.map((dev) => {
+      return new ArnPrincipal(`arn:aws:iam::${dev.account}:user/${dev.name}`);
+    });
+
     const blueprint = EksBlueprint.builder()
       .account(account)
       .region(region)
       .addOns()
-      .teams();
+      .teams(
+        new TeamPlatform(teams.platformDev.name, platformUsers),
+        new TeamApplication(teams.appDev.name, appUsers)
+      );
 
     CodePipelineStack.builder()
       .name(`${id}-codepipeline`)
@@ -50,7 +69,6 @@ export class PipelineConstruct extends Construct {
           },
         ],
       })
-      // FIX Incompatible Types Error `props`
-      .build(scope, id + "-stack", props as any);
+      .build(scope, id + "-stack", props);
   }
 }
