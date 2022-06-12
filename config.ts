@@ -7,6 +7,7 @@ if (!process.env.CDK_DEFAULT_ACCOUNT) {
 }
 
 export const projectName = "capstone";
+export const clusterName = `${projectName}-cluster`;
 
 export const devConfig = {
   id: "dev",

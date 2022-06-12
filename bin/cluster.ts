@@ -18,7 +18,7 @@ if (!process.env.CDK_DEFAULT_REGION) {
   throw new Error("`CDK_DEFAULT_REGION` environment variable is undefined.");
 }
 
-new ClusterConstruct(app, `${config.projectName}-cluster`, {
+new ClusterConstruct(app, config.clusterName, {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: process.env.CDK_DEFAULT_REGION,

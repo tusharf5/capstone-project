@@ -1,4 +1,4 @@
-import { StackProps } from "aws-cdk-lib";
+import { Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import {
   EksBlueprint,
@@ -13,14 +13,13 @@ import {
   prodConfig,
   githubConfig,
   teams,
+  clusterName,
 } from "../config";
 
 import { TeamApplication, TeamPlatform } from "./teams/main";
 
 import { vpcCniAddOn } from "./addons/vpc-cni/main";
 import { karpenterAddOn } from "./addons/karpenter/main";
-
-const clusterAddons: ClusterAddOn[] = [vpcCniAddOn, karpenterAddOn];
 
 export class PipelineConstruct extends Construct {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -45,10 +44,26 @@ export class PipelineConstruct extends Construct {
       return new ArnPrincipal(`arn:aws:iam::${dev.account}:user/${dev.name}`);
     });
 
+    const getKarpenterAddon: (env: string) => ClusterAddOn = (env) =>
+      karpenterAddOn({
+        provisionerSpecs: {
+          "node.kubernetes.io/instance-type": ["m5.large"],
+          "topology.kubernetes.io/zone": [...Stack.of(this).availabilityZones],
+          "kubernetes.io/arch": ["amd64"],
+          "karpenter.sh/capacity-type": ["on-demand", "spot"],
+        },
+        subnetTags: {
+          [`karpenter.sh/discovery/cluster`]: `${env}-${clusterName}`,
+        },
+        securityGroupTags: {
+          [`karpenter.sh/discovery/cluster`]: `${env}-${clusterName}`,
+        },
+      });
+
     const blueprint = EksBlueprint.builder()
       .account(account)
       .region(region)
-      .addOns(...clusterAddons)
+      .addOns(vpcCniAddOn)
       .teams(
         new TeamPlatform(teams.platformDev.name, platformUsers),
         new TeamApplication(teams.appDev.name, appUsers)
@@ -65,14 +80,23 @@ export class PipelineConstruct extends Construct {
       .wave({
         id: "envs",
         stages: [
-          { id: devConfig.id, stackBuilder: blueprint.clone(devConfig.region) },
+          {
+            id: devConfig.id,
+            stackBuilder: blueprint
+              .clone(devConfig.region)
+              .addOns(getKarpenterAddon(devConfig.id)),
+          },
           {
             id: testConfig.id,
-            stackBuilder: blueprint.clone(testConfig.region),
+            stackBuilder: blueprint
+              .clone(testConfig.region)
+              .addOns(getKarpenterAddon(devConfig.id)),
           },
           {
             id: prodConfig.id,
-            stackBuilder: blueprint.clone(prodConfig.region),
+            stackBuilder: blueprint
+              .clone(prodConfig.region)
+              .addOns(getKarpenterAddon(devConfig.id)),
           },
         ],
       })
