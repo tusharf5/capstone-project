@@ -1,4 +1,4 @@
-import { Stack, StackProps } from "aws-cdk-lib";
+import { StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
 import {
   EksBlueprint,
@@ -20,6 +20,7 @@ import { TeamApplication, TeamPlatform } from "./teams/main";
 
 import { vpcCniAddOn } from "./addons/vpc-cni/main";
 import { karpenterAddOn } from "./addons/karpenter/main";
+import { clusterProvider } from "./providers/cluster-provider";
 
 export class PipelineConstruct extends Construct {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -48,7 +49,15 @@ export class PipelineConstruct extends Construct {
       karpenterAddOn({
         provisionerSpecs: {
           "node.kubernetes.io/instance-type": ["m5.large"],
-          "topology.kubernetes.io/zone": [...Stack.of(this).availabilityZones],
+          "topology.kubernetes.io/zone": this.node.tryGetContext(
+            `availability-zones:account=${account}:region=${
+              env === "dev"
+                ? devConfig.region
+                : env === "test"
+                ? testConfig.region
+                : prodConfig.region
+            }`
+          ),
           "kubernetes.io/arch": ["amd64"],
           "karpenter.sh/capacity-type": ["on-demand", "spot"],
         },
@@ -61,6 +70,7 @@ export class PipelineConstruct extends Construct {
       });
 
     const blueprint = EksBlueprint.builder()
+      .clusterProvider(clusterProvider)
       .account(account)
       .region(region)
       .addOns(vpcCniAddOn)

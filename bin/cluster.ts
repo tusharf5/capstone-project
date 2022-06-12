@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-
 import "source-map-support/register";
 
 import { App } from "aws-cdk-lib";
 
 import { ClusterConstruct } from "../lib/cluster-stack";
 import { PipelineConstruct } from "../lib/codepipeline-stack";
+
 import * as config from "../config";
 
 const app = new App();
