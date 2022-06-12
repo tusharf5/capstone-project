@@ -45,3 +45,8 @@ export const teams = {
     ],
   },
 };
+
+export const stackIds = {
+  baseResources: (env: string) => `${env}-${projectName}-base-resources`,
+  eksPipeline: `${projectName}-pipeline`,
+};

@@ -19,6 +19,19 @@ cdk bootstrap --trust=$CDK_DEFAULT_ACCOUNT \
 capstone-pipeline-stack  
 ```
 
+Create a github personal access token with access to `repo:*` and `admin:repo_hook:*`.
+Now store that token in secretsmanager.
+
+```shell
+aws secretsmanager create-secret --name "capstone-github-token" --description "github access token" --secret-string "your github access token" --add-replica-regions "Region=us-east-1" "Region=us-east-2" 
+```
+
+For the first time, you'd have to manually create/trigger the pipeline.
+
+```shell
+cdk deploy capstone-pipeline-stack
+```
+
 To create a user to add to a team.
 
 ```shell
