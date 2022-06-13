@@ -7,7 +7,6 @@ import { BaseResources } from "../lib/stacks/base-resources";
 import { PipelineConstruct } from "../lib/constructs/codepipeline-construct";
 
 import * as config from "../config";
-import { EksResources } from "../lib/stacks/eks-resources";
 
 const app = new App();
 
@@ -64,15 +63,3 @@ const eksPipelineStack = new PipelineConstruct(
     },
   }
 );
-
-// const eksPipelineStack = new EksResources(app, config.stackIds.eksPipeline, {
-//   vpc: {
-//     "us-east-1": baseResourcesStackUsEast1.vpc,
-//     "us-east-2": baseResourcesStackUsEast2.vpc,
-//     "us-west-2": baseResourcesStackUsWast2.vpc,
-//   },
-//   env: {
-//     account: process.env.CDK_DEFAULT_ACCOUNT,
-//     region: process.env.CDK_DEFAULT_REGION,
-//   },
-// });
