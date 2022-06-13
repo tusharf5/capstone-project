@@ -13,7 +13,6 @@ import { vpcCniAddOn } from "../addons/vpc-cni/main";
 import { karpenterAddOn } from "../addons/karpenter/main";
 
 interface PipelineProps extends StackProps {
-  vpc: Record<string, ec2.Vpc>;
   env: {
     account: string;
     region: string;
@@ -45,26 +44,12 @@ export class PipelineConstruct extends Construct {
 
     const getClustProvider: (env: string) => blueprints.ClusterProvider = (
       env
-    ) =>
-      new blueprints.ClusterBuilder()
+    ) => {
+      return new blueprints.ClusterBuilder()
         .withCommonOptions({
           clusterName: `${env}-${config.projectName}`,
           endpointAccess: eks.EndpointAccess.PUBLIC_AND_PRIVATE,
-          // mastersRole: new Role(
-          //   this,
-          //   `${env}-${projectName}-eks-masters-role`,
-          //   {
-          //     assumedBy: new AccountRootPrincipal(),
-          //   }
-          // ),
           serviceIpv4Cidr: "10.100.0.0/16",
-          // role: new Role(this, `${env}-${projectName}-eks-cluster-role`, {
-          //   assumedBy: new ServicePrincipal("eks.amazonaws.com"),
-          //   managedPolicies: [
-          //     ManagedPolicy.fromAwsManagedPolicyName("AmazonEKSClusterPolicy"),
-          //   ],
-          // }),
-          vpc: props.vpc[env],
           version: eks.KubernetesVersion.V1_21,
           albController: albControllerProps,
         })
@@ -80,6 +65,7 @@ export class PipelineConstruct extends Construct {
           nodeGroupSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
         })
         .build();
+    };
 
     const getKarpenterAddon: (env: string) => blueprints.ClusterAddOn = (env) =>
       karpenterAddOn({
