@@ -26,7 +26,7 @@ Now store that token in secretsmanager.
 aws secretsmanager create-secret --name "capstone-github-token" --description "github access token" --secret-string "your github access token" --add-replica-regions "Region=us-east-1" "Region=us-east-2" 
 ```
 
-For the first time, you'd have to manually create/trigger the pipeline.
+For the first time, you'd have to manually create the stack which deploys the pipeline.
 
 ```shell
 cdk deploy capstone-pipeline-stack

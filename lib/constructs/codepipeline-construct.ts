@@ -24,7 +24,6 @@ export class PipelineConstruct extends Construct {
     super(scope, id);
 
     const account = props.env.account;
-    const region = props.env.region;
 
     const platformUsers = config.teams.platformDev.users.map((dev) => {
       return new iam.ArnPrincipal(
@@ -73,27 +72,26 @@ export class PipelineConstruct extends Construct {
           "node.kubernetes.io/instance-type": ["m5.large"],
           "topology.kubernetes.io/zone": this.node.tryGetContext(
             `availability-zones:account=${account}:region=${
-              env === "dev"
-                ? config.devConfig.region
-                : env === "test"
-                ? config.testConfig.region
-                : config.prodConfig.region
+              env === config.environments.dev.name
+                ? config.environments.dev.region
+                : env === config.environments.test.name
+                ? config.environments.test.region
+                : config.environments.prod.region
             }`
           ),
           "kubernetes.io/arch": ["amd64"],
-          "karpenter.sh/capacity-type": ["on-demand", "spot"],
+          "karpenter.sh/capacity-type": ["on-demand"],
         },
         subnetTags: {
-          [`karpenter.sh/discovery/cluster`]: `${env}-${config.clusterName}`,
+          [`karpenter.sh/discovery/cluster`]: `${env}-${config.projectName}`,
         },
         securityGroupTags: {
-          [`karpenter.sh/discovery/cluster`]: `${env}-${config.clusterName}`,
+          [`karpenter.sh/discovery/cluster`]: `${env}-${config.projectName}`,
         },
       });
 
     const blueprint = blueprints.EksBlueprint.builder()
       .account(account)
-      .region(region)
       .addOns(vpcCniAddOn)
       .teams(
         new TeamPlatform(config.teams.platformDev.name, platformUsers),
@@ -112,25 +110,25 @@ export class PipelineConstruct extends Construct {
         id: "envs",
         stages: [
           {
-            id: config.devConfig.id,
+            id: config.environments.dev.name,
             stackBuilder: blueprint
-              .clone(config.devConfig.region)
-              .clusterProvider(getClustProvider(config.devConfig.id))
-              .addOns(getKarpenterAddon(config.devConfig.id)),
+              .clone(config.environments.dev.region)
+              .clusterProvider(getClustProvider(config.environments.dev.name))
+              .addOns(getKarpenterAddon(config.environments.dev.name)),
           },
           {
-            id: config.testConfig.id,
+            id: config.environments.test.name,
             stackBuilder: blueprint
-              .clone(config.testConfig.region)
-              .clusterProvider(getClustProvider(config.testConfig.id))
-              .addOns(getKarpenterAddon(config.testConfig.id)),
+              .clone(config.environments.test.region)
+              .clusterProvider(getClustProvider(config.environments.test.name))
+              .addOns(getKarpenterAddon(config.environments.test.name)),
           },
           {
-            id: config.prodConfig.id,
+            id: config.environments.prod.name,
             stackBuilder: blueprint
-              .clone(config.prodConfig.region)
-              .clusterProvider(getClustProvider(config.prodConfig.id))
-              .addOns(getKarpenterAddon(config.prodConfig.id)),
+              .clone(config.environments.prod.region)
+              .clusterProvider(getClustProvider(config.environments.prod.name))
+              .addOns(getKarpenterAddon(config.environments.prod.name)),
           },
         ],
       })

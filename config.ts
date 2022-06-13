@@ -7,21 +7,20 @@ if (!process.env.CDK_DEFAULT_ACCOUNT) {
 }
 
 export const projectName = "capstone";
-export const clusterName = `${projectName}-cluster`;
 
-export const devConfig = {
-  id: "dev",
-  region: process.env.CDK_DEFAULT_REGION,
-};
-
-export const testConfig = {
-  id: "test",
-  region: "us-east-2",
-};
-
-export const prodConfig = {
-  id: "prod",
-  region: "us-east-1",
+export const environments = {
+  dev: {
+    name: "dev",
+    region: "us-west-2",
+  },
+  test: {
+    name: "test",
+    region: "us-east-1",
+  },
+  prod: {
+    name: "prod",
+    region: "us-east-2",
+  },
 };
 
 export const githubConfig = {
@@ -44,9 +43,4 @@ export const teams = {
       { name: "eks-platform-dev-1", account: process.env.CDK_DEFAULT_ACCOUNT },
     ],
   },
-};
-
-export const stackIds = {
-  baseResources: (env: string) => `${env}-${projectName}-base-resources`,
-  eksPipeline: `${projectName}-pipeline`,
 };

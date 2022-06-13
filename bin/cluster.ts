@@ -19,7 +19,7 @@ if (!process.env.CDK_DEFAULT_REGION) {
 
 const eksPipelineStack = new PipelineConstruct(
   app,
-  config.stackIds.eksPipeline,
+  `${config.projectName}-pipeline-stack`,
   {
     env: {
       account: process.env.CDK_DEFAULT_ACCOUNT,
