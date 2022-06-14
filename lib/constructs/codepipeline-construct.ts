@@ -19,6 +19,15 @@ interface PipelineProps extends StackProps {
   };
 }
 
+const repoUrl = "https://github.com/tusharf5/capstone-project-app-of-apps.git";
+
+const bootstrapRepo: blueprints.ApplicationRepository = {
+  repoUrl,
+  credentialsSecretName: "capstone-github-token",
+  targetRevision: "main",
+  credentialsType: "TOKEN",
+};
+
 export class PipelineConstruct extends Construct {
   constructor(scope: Construct, id: string, props: PipelineProps) {
     super(scope, id);
@@ -98,17 +107,6 @@ export class PipelineConstruct extends Construct {
         new TeamApplication(config.teams.appDev.name, appUsers)
       );
 
-    const repoUrl =
-      "https://github.com/tusharf5/capstone-project-app-of-apps.git";
-
-    const bootstrapRepo: blueprints.ApplicationRepository = {
-      repoUrl,
-      credentialsSecretName: "capstone-github-token",
-      targetRevision: "workshop",
-      credentialsType: "TOKEN",
-    };
-
-    // HERE WE GENERATE THE ADDON CONFIGURATIONS
     const devBootstrapArgo = new blueprints.ArgoCDAddOn({
       namespace: "argocd",
       bootstrapRepo: {
