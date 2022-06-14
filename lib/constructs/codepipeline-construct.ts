@@ -11,6 +11,7 @@ import * as config from "../../config";
 import { TeamApplication, TeamPlatform } from "../teams/main";
 import { vpcCniAddOn } from "../addons/vpc-cni/main";
 import { karpenterAddOn } from "../addons/karpenter/main";
+import { secretsStoreAddon } from "../addons/secretsstore/main";
 
 interface PipelineProps extends StackProps {
   env: {
@@ -101,7 +102,7 @@ export class PipelineConstruct extends Construct {
 
     const blueprint = blueprints.EksBlueprint.builder()
       .account(account)
-      .addOns(vpcCniAddOn)
+      .addOns(vpcCniAddOn, secretsStoreAddon)
       .teams(
         new TeamPlatform(config.teams.platformDev.name, platformUsers),
         new TeamApplication(config.teams.appDev.name, appUsers)
