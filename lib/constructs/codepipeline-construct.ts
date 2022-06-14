@@ -24,9 +24,9 @@ const repoUrl = "https://github.com/tusharf5/capstone-project-app-of-apps.git";
 
 const bootstrapRepo: blueprints.ApplicationRepository = {
   repoUrl,
-  credentialsSecretName: "capstone-github-token",
+  // credentialsSecretName: "capstone-github-token",
   targetRevision: "main",
-  credentialsType: "TOKEN",
+  // credentialsType: "TOKEN",
 };
 
 export class PipelineConstruct extends Construct {
