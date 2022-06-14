@@ -98,6 +98,44 @@ export class PipelineConstruct extends Construct {
         new TeamApplication(config.teams.appDev.name, appUsers)
       );
 
+    const repoUrl =
+      "https://github.com/tusharf5/capstone-project-app-of-apps.git";
+
+    const bootstrapRepo: blueprints.ApplicationRepository = {
+      repoUrl,
+      credentialsSecretName: "capstone-github-token",
+      targetRevision: "workshop",
+      credentialsType: "TOKEN",
+    };
+
+    // HERE WE GENERATE THE ADDON CONFIGURATIONS
+    const devBootstrapArgo = new blueprints.ArgoCDAddOn({
+      namespace: "argocd",
+      bootstrapRepo: {
+        ...bootstrapRepo,
+        path: "envs/dev",
+        targetRevision: "main",
+      },
+    });
+
+    const testBootstrapArgo = new blueprints.ArgoCDAddOn({
+      namespace: "argocd",
+      bootstrapRepo: {
+        ...bootstrapRepo,
+        path: "envs/test",
+        targetRevision: "test",
+      },
+    });
+
+    const prodBootstrapArgo = new blueprints.ArgoCDAddOn({
+      namespace: "argocd",
+      bootstrapRepo: {
+        ...bootstrapRepo,
+        path: "envs/prod",
+        targetRevision: "prod",
+      },
+    });
+
     blueprints.CodePipelineStack.builder()
       .name(`${id}-codepipeline`)
       .owner(config.githubConfig.owner)
@@ -114,21 +152,30 @@ export class PipelineConstruct extends Construct {
             stackBuilder: blueprint
               .clone(config.environments.dev.region)
               .clusterProvider(getClustProvider(config.environments.dev.name))
-              .addOns(getKarpenterAddon(config.environments.dev.name)),
+              .addOns(
+                getKarpenterAddon(config.environments.dev.name),
+                devBootstrapArgo
+              ),
           },
           {
             id: config.environments.test.name,
             stackBuilder: blueprint
               .clone(config.environments.test.region)
               .clusterProvider(getClustProvider(config.environments.test.name))
-              .addOns(getKarpenterAddon(config.environments.test.name)),
+              .addOns(
+                getKarpenterAddon(config.environments.test.name),
+                testBootstrapArgo
+              ),
           },
           {
             id: config.environments.prod.name,
             stackBuilder: blueprint
               .clone(config.environments.prod.region)
               .clusterProvider(getClustProvider(config.environments.prod.name))
-              .addOns(getKarpenterAddon(config.environments.prod.name)),
+              .addOns(
+                getKarpenterAddon(config.environments.prod.name),
+                prodBootstrapArgo
+              ),
           },
         ],
       })

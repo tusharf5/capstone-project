@@ -43,8 +43,10 @@ Once created, update the config file with the user details which will add the us
 To get the kube-config
 
 ```shell
- export KUBE_CONFIG=$(aws cloudformation describe-stacks --stack-name capstone-pipeline-stack | jq -r '.Stacks[0].Outputs[] | select(.OutputKey|match("ConfigCommand"))| .OutputValue')
-```
+aws cloudformation describe-stacks --stack-name dev-dev-blueprint | jq -r '.Stacks[0].Outputs[] | select(.OutputKey|match("ConfigCommand"))| .OutputValue'
+ ```
+
+And then run the command output from the previous command.
 
 Login to the console to reset/manage the created user's passwords. They will need it to access the eks dashboard.
 
