@@ -5,6 +5,7 @@ import * as blueprints from "@aws-quickstart/eks-blueprints";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as eks from "aws-cdk-lib/aws-eks";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as s3 from "aws-cdk-lib/aws-s3";
 
 import * as config from "../../config";
 
@@ -25,8 +26,6 @@ const repoUrl = "https://github.com/tusharf5/capstone-project-app-of-apps.git";
 const bootstrapRepo: blueprints.ApplicationRepository = {
   repoUrl,
   // credentialsSecretName: "capstone-github-token",
-  targetRevision: "main",
-  // credentialsType: "TOKEN",
 };
 
 export class PipelineConstruct extends Construct {
@@ -133,6 +132,12 @@ export class PipelineConstruct extends Construct {
         path: "envs/prod",
         targetRevision: "prod",
       },
+    });
+
+    new s3.Bucket(this, "PipelineAssetsBucket", {
+      bucketName: "capstone-tusharf5-pipeline-assets-bucket",
+      publicReadAccess: false,
+      versioned: true,
     });
 
     blueprints.CodePipelineStack.builder()
