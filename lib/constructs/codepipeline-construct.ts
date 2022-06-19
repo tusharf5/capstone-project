@@ -134,12 +134,6 @@ export class PipelineConstruct extends Construct {
       },
     });
 
-    new s3.Bucket(this, "PipelineAssetsBucket", {
-      bucketName: "capstone-tusharf5-pipeline-assets-bucket",
-      publicReadAccess: false,
-      versioned: true,
-    });
-
     blueprints.CodePipelineStack.builder()
       .name(`${id}-codepipeline`)
       .owner(config.githubConfig.owner)
