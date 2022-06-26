@@ -118,6 +118,9 @@ export class PipelineConstruct extends Construct {
         securityGroupTags: {
           [`karpenter.sh/discovery/cluster`]: `${env}-${config.projectName}`,
         },
+        values: {
+          "aws.defaultInstanceProfile": `eks-36c0ae05-7158-174e-c4cb-72e380042ed8`,
+        },
       });
 
     const blueprint = blueprints.EksBlueprint.builder()
