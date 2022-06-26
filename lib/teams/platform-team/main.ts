@@ -12,7 +12,7 @@ export class TeamPlatform extends PlatformTeam {
   constructor(name: string, users: ArnPrincipal[]) {
     super({
       name: name,
-      users: users,
+      users: users as any[],
     });
   }
 }

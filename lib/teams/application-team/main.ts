@@ -13,7 +13,7 @@ export class TeamApplication extends ApplicationTeam {
   constructor(name: string, users: ArnPrincipal[]) {
     super({
       name: name,
-      users: users,
+      users: users as any[],
     });
   }
 }

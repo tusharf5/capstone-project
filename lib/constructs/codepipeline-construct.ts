@@ -5,7 +5,6 @@ import * as blueprints from "@aws-quickstart/eks-blueprints";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as eks from "aws-cdk-lib/aws-eks";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
-import * as s3 from "aws-cdk-lib/aws-s3";
 
 import * as config from "../../config";
 
@@ -46,6 +45,12 @@ export class PipelineConstruct extends Construct {
       );
     });
 
+    const contentUsers = config.teams.content.users.map((dev) => {
+      return new iam.ArnPrincipal(
+        `arn:aws:iam::${dev.account}:user/${dev.name}`
+      );
+    });
+
     const albControllerProps: eks.AlbControllerOptions = {
       version: eks.AlbControllerVersion.V2_4_1,
     };
@@ -66,7 +71,12 @@ export class PipelineConstruct extends Construct {
           minSize: 1,
           maxSize: 10,
           desiredSize: 2,
-          instanceTypes: [new ec2.InstanceType("m5.large")],
+          instanceTypes: [
+            ec2.InstanceType.of(
+              ec2.InstanceClass.M5,
+              ec2.InstanceSize.LARGE
+            ) as any,
+          ],
           amiType: eks.NodegroupAmiType.AL2_X86_64,
           nodeGroupCapacityType: eks.CapacityType.ON_DEMAND,
           amiReleaseVersion: "1.21.12-20220526",
@@ -74,6 +84,17 @@ export class PipelineConstruct extends Construct {
         })
         .build();
     };
+
+    const getALBAddon: (env: string) => blueprints.ClusterAddOn = (env) =>
+      new blueprints.addons.AwsLoadBalancerControllerAddOn({
+        enableWaf: true,
+        enableWafv2: true,
+        enableShield: true,
+        createIngressClassResource: true,
+      });
+
+    const getEbsCSI: (env: string) => blueprints.ClusterAddOn = (env) =>
+      new blueprints.addons.EbsCsiDriverAddOn();
 
     const getKarpenterAddon: (env: string) => blueprints.ClusterAddOn = (env) =>
       karpenterAddOn({
@@ -104,7 +125,8 @@ export class PipelineConstruct extends Construct {
       .addOns(vpcCniAddOn, secretsStoreAddon)
       .teams(
         new TeamPlatform(config.teams.platformDev.name, platformUsers),
-        new TeamApplication(config.teams.appDev.name, appUsers)
+        new TeamApplication(config.teams.appDev.name, appUsers),
+        new TeamApplication(config.teams.content.name, contentUsers)
       );
 
     const devBootstrapArgo = new blueprints.ArgoCDAddOn({
@@ -152,6 +174,8 @@ export class PipelineConstruct extends Construct {
               .clusterProvider(getClustProvider(config.environments.dev.name))
               .addOns(
                 getKarpenterAddon(config.environments.dev.name),
+                getEbsCSI(config.environments.dev.name),
+                getALBAddon(config.environments.dev.name),
                 devBootstrapArgo
               ),
           },
@@ -162,6 +186,8 @@ export class PipelineConstruct extends Construct {
               .clusterProvider(getClustProvider(config.environments.test.name))
               .addOns(
                 getKarpenterAddon(config.environments.test.name),
+                getEbsCSI(config.environments.test.name),
+                getALBAddon(config.environments.test.name),
                 testBootstrapArgo
               ),
           },
@@ -172,11 +198,13 @@ export class PipelineConstruct extends Construct {
               .clusterProvider(getClustProvider(config.environments.prod.name))
               .addOns(
                 getKarpenterAddon(config.environments.prod.name),
+                getEbsCSI(config.environments.prod.name),
+                getALBAddon(config.environments.prod.name),
                 prodBootstrapArgo
               ),
           },
         ],
       })
-      .build(scope, id + "-stack", props);
+      .build(scope, id + "-stack", props as any);
   }
 }

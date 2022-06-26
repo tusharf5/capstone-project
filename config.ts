@@ -37,6 +37,12 @@ export const teams = {
       { name: "eks-app-dev-1", account: process.env.CDK_DEFAULT_ACCOUNT },
     ],
   },
+  content: {
+    name: "capstone-content-devs",
+    users: [
+      { name: "content-team-dev-a", account: process.env.CDK_DEFAULT_ACCOUNT },
+    ],
+  },
   platformDev: {
     name: "capstone-platform-devs",
     users: [
