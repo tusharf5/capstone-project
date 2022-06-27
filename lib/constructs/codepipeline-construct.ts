@@ -173,7 +173,7 @@ export class PipelineConstruct extends Construct {
               .clone(config.environments.dev.region)
               .clusterProvider(getClustProvider(config.environments.dev.name))
               .addOns(
-                // getKarpenterAddon(config.environments.dev.name),
+                getKarpenterAddon(config.environments.dev.name),
                 getEbsCSI(config.environments.dev.name),
                 getALBAddon(config.environments.dev.name),
                 devBootstrapArgo
@@ -185,7 +185,7 @@ export class PipelineConstruct extends Construct {
               .clone(config.environments.test.region)
               .clusterProvider(getClustProvider(config.environments.test.name))
               .addOns(
-                // getKarpenterAddon(config.environments.test.name),
+                getKarpenterAddon(config.environments.test.name),
                 getEbsCSI(config.environments.test.name),
                 getALBAddon(config.environments.test.name),
                 testBootstrapArgo
@@ -197,7 +197,7 @@ export class PipelineConstruct extends Construct {
               .clone(config.environments.prod.region)
               .clusterProvider(getClustProvider(config.environments.prod.name))
               .addOns(
-                // getKarpenterAddon(config.environments.prod.name),
+                getKarpenterAddon(config.environments.prod.name),
                 getEbsCSI(config.environments.prod.name),
                 getALBAddon(config.environments.prod.name),
                 prodBootstrapArgo
