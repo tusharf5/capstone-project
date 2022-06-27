@@ -118,9 +118,6 @@ export class PipelineConstruct extends Construct {
         securityGroupTags: {
           [`karpenter.sh/discovery/cluster`]: `${env}-${config.projectName}`,
         },
-        values: {
-          "aws.defaultInstanceProfile": `eks-36c0ae05-7158-174e-c4cb-72e380042ed8`,
-        },
       });
 
     const blueprint = blueprints.EksBlueprint.builder()
@@ -176,7 +173,7 @@ export class PipelineConstruct extends Construct {
               .clone(config.environments.dev.region)
               .clusterProvider(getClustProvider(config.environments.dev.name))
               .addOns(
-                getKarpenterAddon(config.environments.dev.name),
+                // getKarpenterAddon(config.environments.dev.name),
                 getEbsCSI(config.environments.dev.name),
                 getALBAddon(config.environments.dev.name),
                 devBootstrapArgo
@@ -188,7 +185,7 @@ export class PipelineConstruct extends Construct {
               .clone(config.environments.test.region)
               .clusterProvider(getClustProvider(config.environments.test.name))
               .addOns(
-                getKarpenterAddon(config.environments.test.name),
+                // getKarpenterAddon(config.environments.test.name),
                 getEbsCSI(config.environments.test.name),
                 getALBAddon(config.environments.test.name),
                 testBootstrapArgo
@@ -200,7 +197,7 @@ export class PipelineConstruct extends Construct {
               .clone(config.environments.prod.region)
               .clusterProvider(getClustProvider(config.environments.prod.name))
               .addOns(
-                getKarpenterAddon(config.environments.prod.name),
+                // getKarpenterAddon(config.environments.prod.name),
                 getEbsCSI(config.environments.prod.name),
                 getALBAddon(config.environments.prod.name),
                 prodBootstrapArgo
