@@ -68,9 +68,9 @@ export class PipelineConstruct extends Construct {
         })
         .managedNodeGroup({
           id: "general-purpose-node",
-          minSize: 1,
+          minSize: 2,
           maxSize: 10,
-          desiredSize: 2,
+          desiredSize: 3,
           instanceTypes: [
             ec2.InstanceType.of(
               ec2.InstanceClass.M5,
