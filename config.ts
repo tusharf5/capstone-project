@@ -12,14 +12,17 @@ export const environments = {
   dev: {
     name: "dev",
     region: "us-west-2",
+    cidr: "10.0.0.0/16",
   },
-  test: {
-    name: "test",
+  uat: {
+    name: "uat",
     region: "us-east-1",
+    cidr: "10.1.0.0/16",
   },
   prod: {
     name: "prod",
     region: "us-east-2",
+    cidr: "10.2.0.0/16",
   },
 };
 
@@ -32,21 +35,21 @@ export const githubConfig = {
 
 export const teams = {
   appDev: {
-    name: "capstone-app-devs",
+    name: "frontend",
     users: [
-      { name: "eks-app-dev-1", account: process.env.CDK_DEFAULT_ACCOUNT },
+      { name: "frontend-user-1", account: process.env.CDK_DEFAULT_ACCOUNT },
     ],
   },
   content: {
-    name: "capstone-content-devs",
+    name: "backend",
     users: [
-      { name: "content-team-dev-a", account: process.env.CDK_DEFAULT_ACCOUNT },
+      { name: "backend-user-1", account: process.env.CDK_DEFAULT_ACCOUNT },
     ],
   },
   platformDev: {
-    name: "capstone-platform-devs",
+    name: "platform",
     users: [
-      { name: "eks-platform-dev-1", account: process.env.CDK_DEFAULT_ACCOUNT },
+      { name: "platform-user-1", account: process.env.CDK_DEFAULT_ACCOUNT },
     ],
   },
 };

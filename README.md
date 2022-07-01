@@ -14,9 +14,7 @@ CDK_DEFAULT_REGION=us-west-2
 
 cdk bootstrap --trust=$CDK_DEFAULT_ACCOUNT \
   --cloudformation-execution-policies arn:aws:iam::aws:policy/AdministratorAccess \
-  aws://$CDK_DEFAULT_ACCOUNT/$CDK_DEFAULT_REGION aws://$CDK_DEFAULT_ACCOUNT/us-east-2 aws://$CDK_DEFAULT_ACCOUNT/us-east-1
-
-capstone-pipeline-stack  
+  aws://$CDK_DEFAULT_ACCOUNT/$CDK_DEFAULT_REGION aws://$CDK_DEFAULT_ACCOUNT/us-east-2 aws://$CDK_DEFAULT_ACCOUNT/us-east-1 
 ```
 
 Create a github personal access token with access to `repo:*` and `admin:repo_hook:*`.
@@ -26,16 +24,19 @@ Now store that token in secretsmanager.
 aws secretsmanager create-secret --name "capstone-github-token" --description "github access token" --secret-string "your github access token" --add-replica-regions "Region=us-east-1" "Region=us-east-2" 
 ```
 
-For the first time, you'd have to manually create the stack which deploys the pipeline.
-
-```shell
-cdk deploy capstone-pipeline-stack
-```
-
 To create a user to add to a team.
+Add all the users in the config file.
 
 ```shell
 aws iam create-user --user-name <username>
+```
+
+For the first time, you'd have to manually create the stack which deploys the pipeline.
+
+```shell
+cdk deploy capstone-core
+cdk deploy capstone-eks-pipeline
+cdk deploy capstone-eks-pipeline/dev-cluster-stack
 ```
 
 Once created, update the config file with the user details which will add the user to the appropriate team.

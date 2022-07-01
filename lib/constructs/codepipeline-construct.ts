@@ -1,4 +1,4 @@
-import { StackProps } from "aws-cdk-lib";
+import { aws_ec2, Stack, StackProps } from "aws-cdk-lib";
 import { Construct } from "constructs";
 
 import * as blueprints from "@aws-quickstart/eks-blueprints";
@@ -8,26 +8,43 @@ import * as ec2 from "aws-cdk-lib/aws-ec2";
 
 import * as config from "../../config";
 
-import { TeamApplication, TeamPlatform } from "../teams/main";
 import { vpcCniAddOn } from "../addons/vpc-cni/main";
 import { karpenterAddOn } from "../addons/karpenter/main";
 import { secretsStoreAddon } from "../addons/secretsstore/main";
+import { IVpc } from "aws-cdk-lib/aws-ec2";
+import { TeamPlatform } from "../teams/platform-team/main";
+import { TeamApplication } from "../teams/application-team/main";
+import {
+  ResourceContext,
+  ResourceProvider,
+} from "@aws-quickstart/eks-blueprints";
 
 interface PipelineProps extends StackProps {
   env: {
     account: string;
     region: string;
   };
+  stage: string;
 }
 
 const repoUrl = "https://github.com/tusharf5/capstone-project-app-of-apps.git";
 
 const bootstrapRepo: blueprints.ApplicationRepository = {
   repoUrl,
-  // credentialsSecretName: "capstone-github-token",
 };
 
-export class PipelineConstruct extends Construct {
+class VpcResourceProvider implements ResourceProvider<any> {
+  provide(context: ResourceContext): IVpc {
+    const scope = context.scope; // stack
+    const vpc = aws_ec2.Vpc.fromLookup(scope, "vpc", {
+      vpcName: `${config.projectName}-vpc`,
+    });
+
+    return vpc;
+  }
+}
+
+export class BlueprintStack extends Stack {
   constructor(scope: Construct, id: string, props: PipelineProps) {
     super(scope, id);
 
@@ -55,156 +72,101 @@ export class PipelineConstruct extends Construct {
       version: eks.AlbControllerVersion.V2_4_1,
     };
 
-    const getClustProvider: (env: string) => blueprints.ClusterProvider = (
-      env
-    ) => {
-      return new blueprints.ClusterBuilder()
-        .withCommonOptions({
-          clusterName: `${env}-${config.projectName}`,
-          endpointAccess: eks.EndpointAccess.PUBLIC_AND_PRIVATE,
-          serviceIpv4Cidr: "10.100.0.0/16",
-          version: eks.KubernetesVersion.V1_21,
-          albController: albControllerProps,
-        })
-        .managedNodeGroup({
-          id: "general-purpose-node",
-          minSize: 2,
-          maxSize: 10,
-          desiredSize: 3,
-          instanceTypes: [
-            ec2.InstanceType.of(
-              ec2.InstanceClass.M5,
-              ec2.InstanceSize.LARGE
-            ) as any,
-          ],
-          amiType: eks.NodegroupAmiType.AL2_X86_64,
-          nodeGroupCapacityType: eks.CapacityType.ON_DEMAND,
-          amiReleaseVersion: "1.21.12-20220526",
-          nodeGroupSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
-        })
-        .build();
-    };
+    const cluster = new blueprints.ClusterBuilder()
+      .withCommonOptions({
+        clusterName: `${props.stage}-${config.projectName}`,
+        endpointAccess: eks.EndpointAccess.PUBLIC_AND_PRIVATE,
+        serviceIpv4Cidr: "10.100.0.0/16",
+        version: eks.KubernetesVersion.V1_21,
+        albController: albControllerProps,
+      })
+      .managedNodeGroup({
+        id: "general-purpose-node",
+        minSize: 1,
+        maxSize: 10,
+        desiredSize: 2,
+        instanceTypes: [
+          ec2.InstanceType.of(
+            ec2.InstanceClass.M5,
+            ec2.InstanceSize.LARGE
+          ) as any,
+        ],
+        amiType: eks.NodegroupAmiType.AL2_X86_64,
+        nodeGroupCapacityType: eks.CapacityType.ON_DEMAND,
+        amiReleaseVersion: "1.21.12-20220526",
+        nodeGroupSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
+      })
+      .build();
 
-    const getALBAddon: (env: string) => blueprints.ClusterAddOn = (env) =>
-      new blueprints.addons.AwsLoadBalancerControllerAddOn({
-        enableWaf: true,
-        enableWafv2: true,
-        enableShield: true,
-        createIngressClassResource: true,
-      });
+    const albAddon = new blueprints.addons.AwsLoadBalancerControllerAddOn({
+      enableWaf: true,
+      enableWafv2: true,
+      enableShield: true,
+      createIngressClassResource: true,
+    });
 
-    const getEbsCSI: (env: string) => blueprints.ClusterAddOn = (env) =>
-      new blueprints.addons.EbsCsiDriverAddOn();
+    const ebsCsiAddon = new blueprints.addons.EbsCsiDriverAddOn();
 
-    const getKarpenterAddon: (env: string) => blueprints.ClusterAddOn = (env) =>
-      karpenterAddOn({
-        provisionerSpecs: {
-          "node.kubernetes.io/instance-type": ["m5.large"],
-          "topology.kubernetes.io/zone": this.node.tryGetContext(
-            `availability-zones:account=${account}:region=${
-              env === config.environments.dev.name
-                ? config.environments.dev.region
-                : env === config.environments.test.name
-                ? config.environments.test.region
-                : config.environments.prod.region
-            }`
-          ),
-          "kubernetes.io/arch": ["amd64"],
-          "karpenter.sh/capacity-type": ["on-demand"],
-        },
-        subnetTags: {
-          [`karpenter.sh/discovery/cluster`]: `${env}-${config.projectName}`,
-        },
-        securityGroupTags: {
-          [`karpenter.sh/discovery/cluster`]: `${env}-${config.projectName}`,
-        },
-      });
+    const karpenterAddon = karpenterAddOn({
+      provisionerSpecs: {
+        "node.kubernetes.io/instance-type": ["m5.large"],
+        "topology.kubernetes.io/zone": this.node.tryGetContext(
+          `availability-zones:account=${account}:region=${props.env.region}`
+        ),
+        "kubernetes.io/arch": ["amd64"],
+        "karpenter.sh/capacity-type": ["on-demand"],
+      },
+      subnetTags: {
+        [`karpenter.sh/discovery`]: `${props.stage}-${config.projectName}`,
+      },
+      securityGroupTags: {
+        [`karpenter.sh/discovery`]: `${props.stage}-${config.projectName}`,
+      },
+    });
 
-    const blueprint = blueprints.EksBlueprint.builder()
+    const argoAddon = new blueprints.ArgoCDAddOn({
+      namespace: "argocd",
+      bootstrapRepo: {
+        ...bootstrapRepo,
+        name: `${config.projectName}-argocd`,
+        path: `envs/${props.stage}`,
+        targetRevision: props.stage === "dev" ? "main" : props.stage,
+      },
+    });
+
+    const builder = blueprints.EksBlueprint.builder()
+      .resourceProvider(
+        blueprints.GlobalResources.Vpc,
+        new VpcResourceProvider() as any
+      )
+      .clusterProvider(cluster)
       .account(account)
-      .addOns(vpcCniAddOn, secretsStoreAddon)
+      .addOns(
+        vpcCniAddOn,
+        secretsStoreAddon,
+        karpenterAddon,
+        ebsCsiAddon,
+        albAddon,
+        argoAddon
+      )
       .teams(
         new TeamPlatform(config.teams.platformDev.name, platformUsers),
         new TeamApplication(config.teams.appDev.name, appUsers),
         new TeamApplication(config.teams.content.name, contentUsers)
       );
 
-    const devBootstrapArgo = new blueprints.ArgoCDAddOn({
-      namespace: "argocd",
-      bootstrapRepo: {
-        ...bootstrapRepo,
-        path: "envs/dev",
-        targetRevision: "main",
-      },
-    });
-
-    const testBootstrapArgo = new blueprints.ArgoCDAddOn({
-      namespace: "argocd",
-      bootstrapRepo: {
-        ...bootstrapRepo,
-        path: "envs/test",
-        targetRevision: "test",
-      },
-    });
-
-    const prodBootstrapArgo = new blueprints.ArgoCDAddOn({
-      namespace: "argocd",
-      bootstrapRepo: {
-        ...bootstrapRepo,
-        path: "envs/prod",
-        targetRevision: "prod",
-      },
-    });
-
     blueprints.CodePipelineStack.builder()
-      .name(`${id}-codepipeline`)
+      .name(`${props.stage}-codepipeline`)
       .owner(config.githubConfig.owner)
       .repository({
         repoUrl: config.githubConfig.repoUrl,
         credentialsSecretName: config.githubConfig.credentialsSecretName,
-        targetRevision: config.githubConfig.targetRevision,
+        targetRevision: props.stage === "dev" ? "main" : props.stage,
       })
-      .wave({
-        id: "envs",
-        stages: [
-          {
-            id: config.environments.dev.name,
-            stackBuilder: blueprint
-              .clone(config.environments.dev.region)
-              .clusterProvider(getClustProvider(config.environments.dev.name))
-              .addOns(
-                getKarpenterAddon(config.environments.dev.name),
-                getEbsCSI(config.environments.dev.name),
-                getALBAddon(config.environments.dev.name),
-                devBootstrapArgo
-              ),
-          },
-          {
-            id: config.environments.test.name,
-            stackBuilder: blueprint
-              .clone(config.environments.test.region)
-              .clusterProvider(getClustProvider(config.environments.test.name))
-              .addOns(
-                getKarpenterAddon(config.environments.test.name),
-                getEbsCSI(config.environments.test.name),
-                getALBAddon(config.environments.test.name),
-                testBootstrapArgo
-              ),
-          },
-          {
-            id: config.environments.prod.name,
-            stackBuilder: blueprint
-              .clone(config.environments.prod.region)
-              .clusterProvider(getClustProvider(config.environments.prod.name))
-              .addOns(
-                getKarpenterAddon(config.environments.prod.name),
-                getEbsCSI(config.environments.prod.name),
-                getALBAddon(config.environments.prod.name),
-                prodBootstrapArgo
-              ),
-          },
-        ],
+      .stage({
+        id: config.environments.dev.name,
+        stackBuilder: builder,
       })
-      .build(scope, id + "-stack", props as any);
+      .build(this, `${props.stage}-cluster-stack`, props as any);
   }
 }
