@@ -102,7 +102,6 @@ export class BlueprintStack extends Stack {
       enableWaf: true,
       enableWafv2: true,
       enableShield: true,
-      createIngressClassResource: true,
     });
 
     const ebsCsiAddon = new blueprints.addons.EbsCsiDriverAddOn();
@@ -135,6 +134,7 @@ export class BlueprintStack extends Stack {
     });
 
     const builder = blueprints.EksBlueprint.builder()
+      .name(`${config.projectName}-cluster`)
       .resourceProvider(
         blueprints.GlobalResources.Vpc,
         new VpcResourceProvider() as any
@@ -146,7 +146,7 @@ export class BlueprintStack extends Stack {
         secretsStoreAddon,
         karpenterAddon,
         ebsCsiAddon,
-        albAddon,
+        // albAddon,
         argoAddon
       )
       .teams(
