@@ -32,6 +32,7 @@ aws iam create-user --user-name <username>
 ```
 
 For the first time, you'd have to manually create the stack which deploys the pipeline.
+Commit your changes and push to the remote repository.
 
 ```shell
 cdk deploy capstone-core
@@ -39,7 +40,10 @@ cdk deploy capstone-eks-pipeline
 cdk deploy capstone-eks-pipeline/dev-cluster-stack
 ```
 
-Once created, update the config file with the user details which will add the user to the appropriate team.
+Once deployed, it will take around 30 minutes to finish the cluster deployment. You can view the progress
+in codepipeline.
+
+Once deployed, update the config file with the user details which will add the user to the appropriate team.
 
 To get the kube-config
 
@@ -65,3 +69,5 @@ aws cloudformation describe-stacks --stack-name dev-dev-blueprint | jq -r '.Stac
 ```
 
 Note the account and role name.
+
+<https://aws.amazon.com/blogs/opensource/introducing-fine-grained-iam-roles-service-accounts/>
