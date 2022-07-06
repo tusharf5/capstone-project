@@ -98,12 +98,6 @@ export class BlueprintStack extends Stack {
       })
       .build();
 
-    const albAddon = new blueprints.addons.AwsLoadBalancerControllerAddOn({
-      enableWaf: true,
-      enableWafv2: true,
-      enableShield: true,
-    });
-
     const ebsCsiAddon = new blueprints.addons.EbsCsiDriverAddOn();
 
     const karpenterAddon = karpenterAddOn({
@@ -133,6 +127,12 @@ export class BlueprintStack extends Stack {
       },
     });
 
+    const albAddon = new blueprints.addons.AwsLoadBalancerControllerAddOn({
+      enableWaf: true,
+      enableWafv2: true,
+      enableShield: true,
+    });
+
     const builder = blueprints.EksBlueprint.builder()
       .name(`${config.projectName}-cluster`)
       .resourceProvider(
@@ -146,7 +146,7 @@ export class BlueprintStack extends Stack {
         secretsStoreAddon,
         karpenterAddon,
         ebsCsiAddon,
-        // albAddon,
+        albAddon,
         argoAddon
       )
       .teams(

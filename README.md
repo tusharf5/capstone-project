@@ -70,4 +70,31 @@ aws cloudformation describe-stacks --stack-name dev-dev-blueprint | jq -r '.Stac
 
 Note the account and role name.
 
-<https://aws.amazon.com/blogs/opensource/introducing-fine-grained-iam-roles-service-accounts/>
+
+By default argocd-server service is not publicaly exposed. For the purpose of this workshop, we will use a Load Balancer to make it usable: Please note that you can also do this
+
+```shekk
+kubectl patch svc blueprints-addon-argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+```
+
+To get the argocd url
+
+```shell
+kubectl get svc blueprints-addon-argocd-server -n argocd -o json | jq --raw-output '.status.loadBalancer.ingress[0].hostname'
+```
+
+Username is `admin`
+Password can be retrived via
+
+```
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+```
+
+https://aws.amazon.com/blogs/opensource/introducing-fine-grained-iam-roles-service-accounts/
+
+```shell
+aws eks describe-cluster \
+    --name <cluster-name> \
+    --query cluster.identity.oidc.issuer \
+    --output text
+```                       
