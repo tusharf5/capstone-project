@@ -68,15 +68,34 @@ export class BaseStack extends cdk.Stack {
     );
     tagAllSubnets(
       vpc.publicSubnets,
+      `kubernetes.io/cluster/${props.stage}-${config.projectName}`,
+      `owned`,
+      false
+    );
+    tagAllSubnets(
+      vpc.publicSubnets,
       "Name",
       `public-${config.projectName}`,
       true
     );
-
+    tagAllSubnets(vpc.publicSubnets, "kubernetes.io/role/elb", `1`, false);
+    //
+    tagAllSubnets(
+      vpc.privateSubnets,
+      `kubernetes.io/cluster/${props.stage}-${config.projectName}`,
+      `owned`,
+      false
+    );
     tagAllSubnets(
       vpc.privateSubnets,
       "karpenter.sh/discovery",
       `private-${config.projectName}`,
+      false
+    );
+    tagAllSubnets(
+      vpc.privateSubnets,
+      "kubernetes.io/role/internal-elb",
+      `1`,
       false
     );
     tagAllSubnets(
