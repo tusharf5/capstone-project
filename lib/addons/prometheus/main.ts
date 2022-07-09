@@ -49,7 +49,7 @@ function populateValues(helmOptions: PrometheusProps): blueprints.Values {
   setPath(
     values,
     "storageSpec.volumeClaimTemplate.spec.storageClassName",
-    "ibmc-file-gold"
+    "gp2"
   );
   setPath(values, "storageSpec.volumeClaimTemplate.spec.accessModes", [
     "ReadWriteMany",
