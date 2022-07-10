@@ -10,7 +10,6 @@ import * as cdk from "aws-cdk-lib";
 
 import { CoreCiStage } from "../stage/core-stage";
 import { projectName } from "../../config";
-import { BlueprintStage } from "../stage/blueprint-stage";
 
 interface CiStackProps extends StackProps {
   cidr: string;
@@ -37,7 +36,11 @@ export class BlueprintsCiStack extends Stack {
       synth: new ShellStep("Synth", {
         input: sourceArtifact,
         installCommands: ['echo "Synth installCommands"'],
-        commands: ['echo "Synth commands"', "yarn install", `npx cdk synth`],
+        commands: [
+          'echo "Synth commands"',
+          "yarn install",
+          `npx cdk synth ${id}`,
+        ],
       }),
     });
 
@@ -48,13 +51,5 @@ export class BlueprintsCiStack extends Stack {
     });
 
     pipeline.addStage(infraStage);
-
-    const blueprintStage = new BlueprintStage(this, "blueprint-cluster", {
-      env: { account: props.env!.account, region: props.env!.region },
-      stage: props.stage,
-      cidr: props.cidr,
-    });
-
-    pipeline.addStage(blueprintStage);
   }
 }

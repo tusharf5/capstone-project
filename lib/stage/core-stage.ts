@@ -3,6 +3,7 @@ import { Construct } from "constructs";
 import { projectName } from "../../config";
 
 import { CoreStack } from "../stacks/core-stack";
+import { BlueprintStack } from "../stacks/eks-cluster";
 
 interface StageProps extends cdk.StageProps {
   stage: string;
