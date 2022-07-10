@@ -37,11 +37,7 @@ export class BlueprintsCiStack extends Stack {
       synth: new ShellStep("Synth", {
         input: sourceArtifact,
         installCommands: ['echo "Synth installCommands"'],
-        commands: [
-          'echo "Synth commands"',
-          "yarn install",
-          `npx cdk synth ${projectName}-core-ci-${props.stage}`,
-        ],
+        commands: ['echo "Synth commands"', "yarn install", `npx cdk synth`],
       }),
     });
 
