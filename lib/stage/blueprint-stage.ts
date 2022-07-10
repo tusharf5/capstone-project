@@ -1,6 +1,6 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
-import { BlueprintStack } from "../stacks/eks-pipeline-stack";
+import { BlueprintStack } from "../stacks/eks-cluster";
 
 import * as config from "../../config";
 

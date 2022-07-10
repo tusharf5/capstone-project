@@ -157,7 +157,7 @@ export class BlueprintStack extends Stack {
       );
 
     blueprints.CodePipelineStack.builder()
-      .name(`${props.stage}-codepipeline`)
+      .name(`eks-cluster-${props.stage}`)
       .owner(config.githubConfig.owner)
       .repository({
         repoUrl: config.githubConfig.repoUrl,
