@@ -27,7 +27,7 @@ new BlueprintsCiStack(app, `blueprint-cicd-stack`, {
   },
 });
 
-new BlueprintStack(app, `${config.projectName}-eks-pipeline`, {
+new BlueprintStack(app, `${config.projectName}-eks-pipeline-dev`, {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: config.environments.dev.region,
