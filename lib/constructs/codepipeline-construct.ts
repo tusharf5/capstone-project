@@ -147,9 +147,9 @@ export class BlueprintStack extends Stack {
         secretsStoreAddon,
         karpenterAddon,
         ebsCsiAddon,
-        albAddon,
-        argoAddon,
-        new PrometheusAddon()
+        // albAddon,
+        argoAddon
+        // new PrometheusAddon()
       )
       .teams(
         new TeamPlatform(config.teams.platformDev.name, platformUsers),
