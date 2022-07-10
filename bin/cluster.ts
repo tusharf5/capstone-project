@@ -4,7 +4,7 @@ import "source-map-support/register";
 import { App } from "aws-cdk-lib";
 
 import * as config from "../config";
-import { BlueprintsCiStack } from "../lib/stacks/core-ci";
+import { BlueprintsCiStack } from "../lib/stacks/capstone-pipeline";
 
 const app = new App();
 

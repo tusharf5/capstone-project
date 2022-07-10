@@ -18,7 +18,6 @@ import {
   ResourceContext,
   ResourceProvider,
 } from "@aws-quickstart/eks-blueprints";
-import { PrometheusAddon } from "../addons/prometheus/main";
 
 interface PipelineProps extends StackProps {
   env: {
