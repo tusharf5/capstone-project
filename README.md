@@ -35,9 +35,7 @@ For the first time, you'd have to manually create the stack which deploys the pi
 Commit your changes and push to the remote repository.
 
 ```shell
-cdk deploy capstone-core
-cdk deploy capstone-eks-pipeline
-cdk deploy capstone-eks-pipeline/dev-cluster-stack
+cdk deploy blueprint-cicd-stack
 ```
 
 Once deployed, it will take around 30 minutes to finish the cluster deployment. You can view the progress

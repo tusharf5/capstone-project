@@ -9,7 +9,7 @@ interface Props extends cdk.StackProps {
   cidr: string;
 }
 
-export class BaseStack extends cdk.Stack {
+export class CoreStack extends cdk.Stack {
   public readonly vpc: IVpc;
 
   constructor(scope: Construct, id: string, props: Props) {
@@ -66,18 +66,21 @@ export class BaseStack extends cdk.Stack {
       `public-${config.projectName}`,
       false
     );
+
     tagAllSubnets(
       vpc.publicSubnets,
       `kubernetes.io/cluster/${props.stage}-${config.projectName}`,
       `owned`,
       false
     );
+
     tagAllSubnets(
       vpc.publicSubnets,
       "Name",
       `public-${config.projectName}`,
       true
     );
+
     tagAllSubnets(vpc.publicSubnets, "kubernetes.io/role/elb", `1`, false);
     //
     tagAllSubnets(
