@@ -37,6 +37,7 @@ Commit your changes and push to the remote repository.
 ```shell
 cdk deploy blueprint-cicd-stack
 cdk deploy capstone-eks-pipeline-dev
+cdk deploy capstone-eks-pipeline-dev/dev-cluster-stack
 ```
 
 Once deployed, it will take around 30 minutes to finish the cluster deployment. You can view the progress
