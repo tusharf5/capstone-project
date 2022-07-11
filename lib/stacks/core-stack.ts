@@ -35,9 +35,9 @@ export class CoreStack extends cdk.Stack {
       ],
     });
 
-    new cdk.aws_s3.Bucket(this, "asset-bucket", {
+    new cdk.aws_s3.Bucket(this, "assets-bucket", {
       encryption: BucketEncryption.S3_MANAGED,
-      bucketName: `${config.projectName}-tusharf5-pipeline-assets-bucket-${props.stage}`,
+      bucketName: `${config.projectName}-tusharf5-assets-bucket-${props.stage}`,
       versioned: true,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
       eventBridgeEnabled: true,
