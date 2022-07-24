@@ -82,13 +82,13 @@ export class BlueprintStack extends Stack {
       })
       .managedNodeGroup({
         id: "general-purpose-node",
-        minSize: 2,
+        minSize: 3,
         maxSize: 10,
-        desiredSize: 2,
+        desiredSize: 3,
         instanceTypes: [
           ec2.InstanceType.of(
-            ec2.InstanceClass.T3,
-            ec2.InstanceSize.MICRO
+            ec2.InstanceClass.T3A,
+            ec2.InstanceSize.MEDIUM
           ) as any,
         ],
         amiType: eks.NodegroupAmiType.AL2_X86_64,
