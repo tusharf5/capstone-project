@@ -11,7 +11,7 @@
     "cdk": "cdk"
   },
   "dependencies": {
-    "@aws-quickstart/eks-blueprints": "1.0.4",
+    "@aws-quickstart/eks-blueprints": "1.1.0",
     "aws-cdk-lib": "2.25.0",
     "lodash": "4.17.21",
     "source-map-support": "0.5.21",
