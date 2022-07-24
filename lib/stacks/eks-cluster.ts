@@ -11,7 +11,7 @@ import * as config from "../../config";
 import { vpcCniAddOn } from "../addons/vpc-cni/main";
 import { karpenterAddOn } from "../addons/karpenter/main";
 import { secretsStoreAddon } from "../addons/secretsstore/main";
-import { IVpc } from "aws-cdk-lib/aws-ec2";
+import { IVpc, SubnetType } from "aws-cdk-lib/aws-ec2";
 import { TeamPlatform } from "../teams/platform-team/main";
 import { TeamApplication } from "../teams/application-team/main";
 import {
@@ -94,7 +94,7 @@ export class BlueprintStack extends Stack {
         amiType: eks.NodegroupAmiType.AL2_X86_64,
         nodeGroupCapacityType: eks.CapacityType.ON_DEMAND,
         amiReleaseVersion: "1.21.12-20220526",
-        nodeGroupSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_NAT },
+        nodeGroupSubnets: { subnetType: SubnetType.PRIVATE_WITH_NAT },
       })
       .build();
 
