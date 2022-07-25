@@ -146,7 +146,7 @@ export class BlueprintStack extends Stack {
         secretsStoreAddon,
         karpenterAddon,
         ebsCsiAddon,
-        // albAddon,
+        ...(props.stage === "dev" ? [albAddon] : []),
         argoAddon
         // new PrometheusAddon()
       )

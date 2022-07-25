@@ -53,6 +53,11 @@ aws cloudformation describe-stacks --stack-name dev-dev-blueprint | jq -r '.Stac
 
 And then run the command output from the previous command.
 
+```shell
+kubectl config get-contexts
+kubectl config use-context <context>
+```
+
 Login to the console to reset/manage the created user's passwords. They will need it to access the eks dashboard.
 
 To list all the available roles.
@@ -98,3 +103,9 @@ aws eks describe-cluster \
     --query cluster.identity.oidc.issuer \
     --output text
 ```                       
+
+Delete the service account to avoid error when you enable it for first time.
+
+```shell
+ kubectl delete serviceaccount aws-load-balancer-controller -n kube-system
+```
