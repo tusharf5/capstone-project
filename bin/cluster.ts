@@ -35,7 +35,7 @@ new BlueprintStack(app, `${config.projectName}-eks-pipeline-dev`, {
   stage: config.environments.dev.name,
 });
 
-new BlueprintsCiStack(app, `blueprint-cicd-stack-dev`, {
+new BlueprintsCiStack(app, `blueprint-cicd-stack-uat`, {
   stage: config.environments.dev.name,
   cidr: config.environments.dev.cidr,
   branch: "main",
