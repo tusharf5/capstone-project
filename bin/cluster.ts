@@ -36,12 +36,12 @@ new BlueprintStack(app, `${config.projectName}-eks-pipeline-dev`, {
 });
 
 new BlueprintsCiStack(app, `blueprint-cicd-stack-uat`, {
-  stage: config.environments.dev.name,
-  cidr: config.environments.dev.cidr,
-  branch: "main",
+  stage: config.environments.uat.name,
+  cidr: config.environments.uat.cidr,
+  branch: "uat",
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: config.environments.dev.region,
+    region: config.environments.uat.region,
   },
 });
 
