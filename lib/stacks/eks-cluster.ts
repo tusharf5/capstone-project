@@ -18,6 +18,7 @@ import {
   ResourceContext,
   ResourceProvider,
 } from "@aws-quickstart/eks-blueprints";
+import { ArgoCdRolloutAddon } from "../addons/argocd-bluegreen/main";
 
 interface PipelineProps extends StackProps {
   env: {
@@ -127,6 +128,8 @@ export class BlueprintStack extends Stack {
       },
     });
 
+    const argoRolloutAddon = new ArgoCdRolloutAddon();
+
     const albAddon = new blueprints.addons.AwsLoadBalancerControllerAddOn({
       enableWaf: true,
       enableWafv2: true,
@@ -147,7 +150,9 @@ export class BlueprintStack extends Stack {
         karpenterAddon,
         ebsCsiAddon,
         ...(props.stage === "dev" ? [albAddon] : []),
-        argoAddon
+        argoAddon,
+        argoRolloutAddon
+
         // new PrometheusAddon()
       )
       .teams(
