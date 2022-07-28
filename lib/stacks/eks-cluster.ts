@@ -34,10 +34,17 @@ const bootstrapRepo: blueprints.ApplicationRepository = {
 };
 
 class VpcResourceProvider implements ResourceProvider<any> {
+  _region: string;
+
+  constructor(region: string) {
+    this._region = region;
+  }
+
   provide(context: ResourceContext): IVpc {
     const scope = context.scope; // stack
     const vpc = aws_ec2.Vpc.fromLookup(scope, "vpc", {
       vpcName: `${config.projectName}-vpc`,
+      region: this._region,
     });
 
     return vpc;
@@ -137,7 +144,9 @@ export class BlueprintStack extends Stack {
       .name(`${config.projectName}-cluster`)
       .resourceProvider(
         blueprints.GlobalResources.Vpc,
-        new VpcResourceProvider() as any
+        new VpcResourceProvider(
+          props.stage === "dev" ? "us-west-2" : "us-east-1"
+        ) as any
       )
       .clusterProvider(cluster)
       .account(account)
