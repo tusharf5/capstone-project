@@ -165,7 +165,10 @@ export class BlueprintStack extends Stack {
         targetRevision: props.stage === "dev" ? "main" : props.stage,
       })
       .stage({
-        id: config.environments.dev.name,
+        id:
+          props.stage === "dev"
+            ? config.environments.dev.name
+            : config.environments.uat.name,
         stackBuilder: builder,
       })
       .build(this, `${props.stage}-cluster-stack`, props as any);
